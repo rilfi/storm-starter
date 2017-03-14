@@ -1,4 +1,5 @@
 package com.inoovalab.c2c.gate;
+import com.google.protobuf.ServiceException;
 import gate.*;
 import gate.creole.SerialAnalyserController;
 import gate.persist.PersistenceException;
@@ -24,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class GztBolt extends BaseRichBolt {
 
 	  private OutputCollector collector;
+	  int count;
+    long initiatatedTime;
     /*  File pluginsHome;
         File anniePlugin;
         File annieGapp;*/
@@ -44,6 +47,7 @@ public class GztBolt extends BaseRichBolt {
         anniePlugin = new File(pluginsHome, "ANNIE");
         annieGapp = new File(anniePlugin, "ANNIE_with_defaults.gapp");*/
         SerialAnalyserController annieController=null;
+
 
         try {
             annieController =
@@ -100,7 +104,8 @@ public class GztBolt extends BaseRichBolt {
 	  @SuppressWarnings("rawtypes")
 	  @Override
 	  public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-	    this.collector = collector;
+	   count=0;
+	     this.collector = collector;
 	    ThreadLocal<SerialAnalyserController> controller = new ThreadLocal<SerialAnalyserController>() {
 
               protected SerialAnalyserController initialValue() {
@@ -109,6 +114,8 @@ public class GztBolt extends BaseRichBolt {
 
           };
 	     c=controller.get();
+	     initiatatedTime=System.nanoTime();
+
          // this.annieController=(Resource)stormConf.get("annieGapp");
 
 
@@ -124,7 +131,7 @@ public class GztBolt extends BaseRichBolt {
 	  public void execute(Tuple input) {
 
 
-
+count++;
 
 
 
@@ -138,9 +145,10 @@ public class GztBolt extends BaseRichBolt {
           }*/
           long bTime=0;
           long aTime=0;
-          String id=input.getValue(0).toString();
-		  String tweet=input.getValue(1).toString().toLowerCase();
-		  String startedTime=input.getValue(2).toString();
+         // String id=input.getValue(0).toString();
+
+		  String tweet=input.getValue(0).toString().toLowerCase();
+		  //String startedTime=input.getValue(1).toString();
           Corpus corpus = null;
           Map<String, Set<String>>gateMap=new HashMap<String, Set<String>>();
           try {
@@ -167,10 +175,18 @@ public class GztBolt extends BaseRichBolt {
                           //System.out.println("gzBolt ---- "+id+" --- "+gateMap.toString()+" ---- "+startedTime);
 
                           if (gateMap != null) {
-                              collector.emit(new Values(id, gateMap.toString(), startedTime));
+                              //count++;
+                              System.out.println("---000000000000000000000000000000000000000");
+                              collector.emit(input,new Values( gateMap.toString(), initiatatedTime));
+                              collector.ack(input);
+
+
 
                           }
+
                       }
+
+
                       catch (NullPointerException ne){
                           System.out.println("gz null 00000000000000");
 
@@ -179,6 +195,9 @@ public class GztBolt extends BaseRichBolt {
 
                   } catch (ExecutionException e) {
                       e.printStackTrace();
+                  }
+                  catch (Exception e){
+                      collector.fail(input);
                   }
 
                   // pr.execute();
@@ -198,7 +217,7 @@ public class GztBolt extends BaseRichBolt {
           //gateMap=new GateAgent().getAnnotatedMap(input.getValue(1).toString());
 
 		 // String processedTime=String.valueOf(aTime-bTime);
-		  
+
 	    //collector.emit(Collections.singletonList((Object)(input.getString(0) + "!!!")));
 		 //collector.emit(Collections.singletonList((Object)at.update(input.getValue(0).toString())));
          // System.out.println("------------------gzBolt--------------");
@@ -208,10 +227,10 @@ public class GztBolt extends BaseRichBolt {
 
 	  }
 
-	 
+
 	  @Override
 	  public void declareOutputFields(OutputFieldsDeclarer declarer) {
-	    declarer.declare(new Fields("id","tweet","tokenTime"));
+	    declarer.declare(new Fields("tweet","tokenTime"));
 	  }
 
 

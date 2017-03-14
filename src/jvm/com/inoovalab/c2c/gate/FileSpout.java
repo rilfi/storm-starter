@@ -81,13 +81,13 @@ public class FileSpout extends BaseRichSpout {
 
 			if(itr.hasNext()){
 				line=itr.next();
-				String id=line.split("---")[0];
-				String tweet=line.split("---")[1];
+				//String id=line.split("---")[0];
+				String tweet=line;
 				String time=String.valueOf(System.nanoTime());
 				//Utils.sleep(50);
 				//System.out.println("FileSpout --- "+id+"---"+tweet);
 				//Thread.sleep(1);
-				collector.emit(new Values(id,tweet,startTime));
+				collector.emit(new Values(tweet,startTime));
 			}
 			
 			//reader = new BufferedReader(new FileReader(fname));
@@ -115,7 +115,7 @@ public class FileSpout extends BaseRichSpout {
     }
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("id","tweet","startTime"));
+		declarer.declare(new Fields("tweet","startTime"));
 	}
 
 }

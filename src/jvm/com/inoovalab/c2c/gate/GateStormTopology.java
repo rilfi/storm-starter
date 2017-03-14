@@ -112,9 +112,9 @@ public class GateStormTopology implements Serializable {
     try {
       //if there is a 3rd command line parameter, run remote cluster
       if (args != null && args.length > 2) {
-        GateStormTopology.submitTopology(null, "jointFile.txt", "output.txt");
+        GateStormTopology.submitTopology(null, "jointFile1.txt", "output.txt");
       } else {
-        GateStormTopology.submitTopology(new LocalCluster(), "tweets20001.txt", "output.txt");
+        GateStormTopology.submitTopology(new LocalCluster(), "jointFile1.txt", "output500000.txt");
       }
     } catch (InterruptedException e) {
       e.printStackTrace();

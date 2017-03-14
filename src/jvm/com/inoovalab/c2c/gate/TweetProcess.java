@@ -215,27 +215,38 @@ public class TweetProcess {
         //String [] f1 = new String(Files.readAllLines(Paths.get("tweets20001.txt"), StandardCharsets.UTF_8).split("-----");
         //List<String> lines = Files.readAllLines(Paths.get("tweetsFile500000.txt"), StandardCharsets.UTF_8);
         List<String> f1 = Files.readAllLines(Paths.get("tweets20001.txt"), StandardCharsets.UTF_8);
-        String []f2 = new String(Files.readAllBytes(Paths.get("allTweetinsingleLine.txt")), StandardCharsets.UTF_8).split("----");
-        BufferedWriter br=new BufferedWriter(new FileWriter("jointFile.txt"));
+        String []f2 = new String(Files.readAllBytes(Paths.get("allTweetinsingleLine.txt")), StandardCharsets.UTF_8).split("-----");
+        BufferedWriter br=new BufferedWriter(new FileWriter("jointFile1.txt"));
         int dn=f2.length/f1.size();
         int j=0;
+        int idf=0;
          for(int i=0;i<f2.length;i++){
-             if(i%dn==0 && j<f1.size()){
-                 br.write(i+"---"+f1.get(j).split(",")[1]);
-                 br.newLine();
-                 br.flush();
-                 j++;
-             }
-             else if(i<f2.length){
-                 try {
-                     br.write(i + "---" + f2[i].split("---")[1]);
-                     br.newLine();
-                     br.flush();
+             try {
+                 if(!f2[i].contains("---")){
+                     continue;
                  }
-                 catch (ArrayIndexOutOfBoundsException aie){
+                 br.write(f2[i].split("---")[1]);
+                 br.newLine();
+                 idf++;
+                 if (i % dn == 0 && j < f1.size()) {
+                     br.write(f1.get(j).split("---")[1]);
+                     br.newLine();
+                     idf++;
+                     j++;
 
                  }
+                 br.flush();
              }
+             catch (ArrayIndexOutOfBoundsException aoe){
+                 System.out.println("index error");
+                 aoe.printStackTrace();
+             }
+
+
+
+
+
+
 
          }
          br.close();

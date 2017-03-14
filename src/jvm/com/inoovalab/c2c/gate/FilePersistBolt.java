@@ -23,6 +23,7 @@ public class FilePersistBolt extends BaseRichBolt {
   private static final Logger LOG = LoggerFactory.getLogger(FilePersistBolt.class);
   private BufferedWriter writer;
   private OutputCollector outputCollector;
+  int count;
 
 
   @Override
@@ -30,6 +31,7 @@ public class FilePersistBolt extends BaseRichBolt {
     String filepath = (String) map.get("persist.file");
     String absoluteFileName = filepath+"."+topologyContext.getThisTaskIndex();
     this.outputCollector=outputCollector;
+    count=0;
 
     try {
       writer = new BufferedWriter(new FileWriter(absoluteFileName));
@@ -42,16 +44,17 @@ public class FilePersistBolt extends BaseRichBolt {
 
   @Override
   public void execute(Tuple tuple) {
-    final String l = tuple.getValue(0).toString();
-    String tweet=tuple.getValue(1).toString();
+    count++;
+    //final String l = tuple.getValue(0).toString();
+    String tweet=tuple.getValue(0).toString();
     //final Map<String, Set<String>> m=(Map<String, Set<String>>) l;
     //Map<String, Set<String>> m=(Map<String, Set<String>>)tuple.getValue(1);
    // String tweet=tuple.getValue(1).toString();
     long time=System.nanoTime();
-    String tokenTime=tuple.getValue(2).toString();
+    long tokenTime=Long.valueOf(tuple.getValue(1).toString());
     //long timeTaken=time-Integer.valueOf(tokenTime);
-    final String line=l+","+tweet+"--"+time+"-"+tokenTime;
-   // System.out.println("FilePersistBolt --- "+line);
+    final String line=tweet+"--"+time+"---"+tokenTime+"---"+count+"---"+((time-tokenTime)/count);
+   System.out.println("FilePersistBolt --- "+line);
     
     LOG.info(line);
     try {
